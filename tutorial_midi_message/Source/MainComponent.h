@@ -77,7 +77,8 @@ public:
 private:
     static String getMidiMessageDescription (const MidiMessage& m)
     {
-        if (m.isNoteOn())           return "Note on "  + MidiMessage::getMidiNoteName (m.getNoteNumber(), true, true, 3);
+        if (m.isNoteOn())           return "Note on "  + MidiMessage::getMidiNoteName (m.getNoteNumber(), true, true, 3) 
+                                                        + "" + String(m.getVelocity());
         if (m.isNoteOff())          return "Note off " + MidiMessage::getMidiNoteName (m.getNoteNumber(), true, true, 3);
         if (m.isProgramChange())    return "Program change " + String (m.getProgramChangeNumber());
         if (m.isPitchWheel())       return "Pitch wheel " + String (m.getPitchWheelValue());
@@ -124,6 +125,10 @@ private:
             MidiMessage message = MidiMessage::controllerEvent (midiChannel, 7, (int) volumeSlider.getValue());
             message.setTimeStamp (Time::getMillisecondCounterHiRes() * 0.001 - startTime);
             addMessageToList (message);
+            
+            MidiMessage messageOff(MidiMessage::noteOff(message.getChannel(), message.getNoteNumber()));
+            messageOff.setTimeStamp(Time::getMillisecondCounterHiRes()* 0.001 - startTime);
+            addMessageToList(messageOff);
         }
     }
 
