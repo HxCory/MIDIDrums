@@ -6,13 +6,16 @@
 
 class MainContentComponent   : public Component,
                                private Button::Listener,
-                               private Slider::Listener
+                               private Slider::Listener,
+                               private Timer
 {
 public:
     //==============================================================================
     MainContentComponent()
        : midiChannel (10),
-         startTime (Time::getMillisecondCounterHiRes() * 0.001)
+         startTime (Time::getMillisecondCounterHiRes() * 0.001),
+         sampleRate(44100.0),
+         previousSampleNumber(0)
     {
         setLookAndFeel (&lookAndFeel);
         
@@ -51,6 +54,7 @@ public:
         midiMessagesBox.setColour (TextEditor::shadowColourId, Colour (0x16000000));
 
         setSize (800, 300);
+        startTimer(1);
     }
 
     void paint (Graphics& g) override
@@ -101,6 +105,28 @@ private:
         return String::toHexString (m.getRawData(), m.getRawDataSize());
     }
 
+    void timerCallback() override
+    {
+        const double currentTime = Time::getMillisecondCounterHiRes() * 0.001 - startTime;
+        const int currentSampleNumber = (int) (currentTime * sampleRate);
+
+        MidiBuffer::Iterator iterator(midiBuffer);
+        MidiMessage message;
+        int sampleNumber;
+
+        while(iterator.getNextEvent(message, sampleNumber))
+        {
+            if(sampleNumber > currentSampleNumber)
+                break;
+
+            message.setTimeStamp(sampleNumber/sampleRate);
+            addMessageToList(message);
+        }
+
+        midiBuffer.clear(previousSampleNumber, currentSampleNumber - previousSampleNumber);
+        previousSampleNumber = currentSampleNumber;
+    }
+
     void buttonClicked (Button* button) override
     {
         int noteNumber = -1; // just used as a check that this as been set before we create a MidiMessage object
@@ -115,6 +141,11 @@ private:
             MidiMessage message = MidiMessage::noteOn (midiChannel, noteNumber, (uint8) 100);
             message.setTimeStamp (Time::getMillisecondCounterHiRes() * 0.001 - startTime);
             addMessageToList (message);
+
+            MidiMessage messageOff(MidiMessage::noteOff(message.getChannel(),
+             message.getNoteNumber()));
+            messageOff.setTimeStamp(message.getTimeStamp() + 0.1);
+            addMessageToBuffer(messageOff);
         }
     }
 
@@ -125,11 +156,14 @@ private:
             MidiMessage message = MidiMessage::controllerEvent (midiChannel, 7, (int) volumeSlider.getValue());
             message.setTimeStamp (Time::getMillisecondCounterHiRes() * 0.001 - startTime);
             addMessageToList (message);
-            
-            MidiMessage messageOff(MidiMessage::noteOff(message.getChannel(), message.getNoteNumber()));
-            messageOff.setTimeStamp(Time::getMillisecondCounterHiRes()* 0.001 - startTime);
-            addMessageToList(messageOff);
         }
+    }
+
+    void addMessageToBuffer(const MidiMessage& message)
+    {
+        const double timestamp = message.getTimeStamp();
+        const int sampleNumber = (int) (timestamp * sampleRate);
+        midiBuffer.addEvent(message, sampleNumber);
     }
 
     void logMessage (const String& m)
@@ -169,6 +203,10 @@ private:
 
     int midiChannel;
     double startTime;
+
+    MidiBuffer midiBuffer;
+    double sampleRate;
+    int previousSampleNumber;
 
     LookAndFeel_V3 lookAndFeel;
     //==============================================================================
