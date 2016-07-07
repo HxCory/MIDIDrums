@@ -64,7 +64,7 @@ public:
         midiMessagesBox.setColour (TextEditor::outlineColourId, Colour (0x1c000000));
         midiMessagesBox.setColour (TextEditor::shadowColourId, Colour (0x16000000));
 
-        setSize (800, 300);
+        setSize (800, 320);
         startTimer(1);
     }
 
