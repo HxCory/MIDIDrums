@@ -36,8 +36,12 @@ public:
         openHiHatButton.addListener (this);
 
         addAndMakeVisible (crashCymbalButton);
-        crashCymbalButton.setButtonText ("Crash (50)");
+        crashCymbalButton.setButtonText ("Crash (49)");
         crashCymbalButton.addListener (this);
+
+        addAndMakeVisible (rideCymbalButton);
+        rideCymbalButton.setButtonText ("Ride (51)");
+        rideCymbalButton.addListener (this);
 
         addAndMakeVisible (volumeLabel);
         volumeLabel.setText ("Volume (CC7)", dontSendNotification);
@@ -84,6 +88,7 @@ public:
         closedHiHatButton.setBounds (buttonsBounds.getX(), 70, buttonsBounds.getWidth(), 20);
         openHiHatButton.setBounds (buttonsBounds.getX(), 100, buttonsBounds.getWidth(), 20);
         crashCymbalButton.setBounds (buttonsBounds.getX(), 130, buttonsBounds.getWidth(), 20);
+        rideCymbalButton.setBounds (buttonsBounds.getX(), 160, buttonsBounds.getWidth(), 20);
         volumeLabel.setBounds (buttonsBounds.getX(), 190, buttonsBounds.getWidth(), 20);
         volumeSlider.setBounds (buttonsBounds.getX(), 220, buttonsBounds.getWidth(), 20);
         panLabel.setBounds (buttonsBounds.getX(), 250, buttonsBounds.getWidth(), 20);
@@ -149,7 +154,8 @@ private:
         if (button == &snareDrumButton)     noteNumber = 38;
         if (button == &closedHiHatButton)   noteNumber = 42;
         if (button == &openHiHatButton)     noteNumber = 46;
-        if (button == &crashCymbalButton)   noteNumber = 50;
+        if (button == &crashCymbalButton)   noteNumber = 49;
+        if (button == &rideCymbalButton)    noteNumber = 51;
 
         if (noteNumber >= 0)
         {
@@ -219,6 +225,7 @@ private:
     TextButton closedHiHatButton;
     TextButton openHiHatButton;
     TextButton crashCymbalButton;
+    TextButton rideCymbalButton;
 
     Label volumeLabel;
     Slider volumeSlider;
