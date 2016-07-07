@@ -46,6 +46,13 @@ public:
         volumeSlider.setRange (0, 127, 1);
         volumeSlider.addListener (this);
 
+        addAndMakeVisible (panLabel);
+        panLabel.setText ("Pan (CC10)", dontSendNotification);
+
+        addAndMakeVisible (panSlider);
+        panSlider.setRange (-10, 10 , 1);
+        panSlider.addListener (this);
+
         addAndMakeVisible (midiMessagesBox);
         midiMessagesBox.setMultiLine (true);
         midiMessagesBox.setReturnKeyStartsNewLine (true);
@@ -79,6 +86,8 @@ public:
         crashCymbalButton.setBounds (buttonsBounds.getX(), 130, buttonsBounds.getWidth(), 20);
         volumeLabel.setBounds (buttonsBounds.getX(), 190, buttonsBounds.getWidth(), 20);
         volumeSlider.setBounds (buttonsBounds.getX(), 220, buttonsBounds.getWidth(), 20);
+        panLabel.setBounds (buttonsBounds.getX(), 250, buttonsBounds.getWidth(), 20);
+        panSlider.setBounds (buttonsBounds.getX(), 280, buttonsBounds.getWidth(), 20);
 
         midiMessagesBox.setBounds (getLocalBounds().withWidth (halfWidth).withX (halfWidth).reduced (10));
     }
@@ -163,7 +172,15 @@ private:
             message.setTimeStamp (Time::getMillisecondCounterHiRes() * 0.001 - startTime);
             addMessageToList (message);
         }
+
+        if (slider == &panSlider)
+        {
+            MidiMessage message = MidiMessage::controllerEvent(midiChannel, 10, (int) panSlider.getValue());
+            message.setTimeStamp (Time::getMillisecondCounterHiRes() * 0.001 - startTime);
+            addMessageToList (message);
+        }
     }
+
 
     void addMessageToBuffer(const MidiMessage& message)
     {
@@ -205,6 +222,8 @@ private:
 
     Label volumeLabel;
     Slider volumeSlider;
+    Label panLabel;
+    Slider panSlider;
 
     TextEditor midiMessagesBox;
 
